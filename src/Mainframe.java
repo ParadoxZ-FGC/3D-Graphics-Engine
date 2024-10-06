@@ -181,6 +181,24 @@ class Mainframe {
 
 		frame.setSize(screen);
 		frame.setVisible(true);
+		/*frame.addComponentListener(new ComponentAdapter() {
+			@Override public void componentHidden(ComponentEvent e) {
+				try {
+					Runtime.getRuntime().exec("mv Mainframe.java ../ && mv Coords.java ../ && rm * && mv ../Mainframe.java ./ && mv ../Coords.java ./");
+				}
+				catch (Exception ex) {}
+				((JFrame)(e.getComponent())).dispose();
+			}
+		});*/
 		device.setFullScreenWindow(frame);
+
+		/*Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			public void run() {
+				try {
+					Runtime.getRuntime().exec("mv Mainframe.java ../ && mv Coords.java ../ && rm * && mv ../Mainframe.java ./ && mv ../Coords.java ./");
+				}
+				catch (Exception e) {}
+			}
+		}, "Shutdown-thread"));*/
 	}
 }
