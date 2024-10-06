@@ -5,6 +5,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
+import javax.swing.event.*;
 
 class Mainframe {
 	static GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
@@ -16,7 +17,7 @@ class Mainframe {
 		Container pane = frame.getContentPane();
 		pane.setLayout(new BorderLayout());
 
-		Coords mouse = new Coords(MouseInfo.getPointerInfo().getLocation().getX(), MouseInfo.getPointerInfo().getLocation().getY());
+		Coords mouse = new Coords(MouseInfo.getPointerInfo().getLocation().getX(), MouseInfo.getPointerInfo().getLocation().getY(), 1);
 		JPanel renderPanel = new JPanel() {
 			public void paintComponent(Graphics g) {
 				Graphics2D g2d = (Graphics2D) g;
@@ -46,7 +47,7 @@ class Mainframe {
 				dot.closePath();
 				g2d.draw(dot);
 
-				// 
+				/*
 				g2d.setColor(Color.white);
 				double xhalf = getWidth()/2;
 				double x;	
@@ -87,47 +88,86 @@ class Mainframe {
 					vl.lineTo(c.x - x, c.y + (x * m));
 					vl.closePath();
 					g2d.draw(vl);
-				}
+				}*/
 
+				/*
 				Path2D cm = new Path2D.Double();
 				cm.moveTo(c.x, c.y);
 				cm.lineTo(mouse.x, mouse.y);
 				cm.closePath();
-				g2d.draw(cm);
+				g2d.draw(cm);*/
 
-				Path2D tlm = new Path2D.Double();	// Top left -> Mouse
-				tlm.moveTo(0, 0);
+				Path2D tlm = new Path2D.Double();	// Center top -> Mouse
+				tlm.moveTo(c.x, 0);
 				tlm.lineTo(mouse.x, mouse.y);
 				tlm.closePath();
 				g2d.draw(tlm);
-				Path2D trm = new Path2D.Double();	// Top right -> Mouse
-				trm.moveTo(getWidth(), 0);
+				Path2D trm = new Path2D.Double();	// Center left -> Mouse
+				trm.moveTo(0, c.y);
 				trm.lineTo(mouse.x, mouse.y);
 				trm.closePath();
 				g2d.draw(trm);
-				Path2D blm = new Path2D.Double();	// Bottom left -> Mouse
-				blm.moveTo(0, getHeight());
+				Path2D blm = new Path2D.Double();	// Center bottom -> Mouse
+				blm.moveTo(c.x, getHeight());
 				blm.lineTo(mouse.x, mouse.y);
 				blm.closePath();
 				g2d.draw(blm);
-				Path2D brm = new Path2D.Double();	// Bottom right -> Mouse
-				brm.moveTo(getWidth(), getHeight());
+				Path2D brm = new Path2D.Double();	// Center right -> Mouse
+				brm.moveTo(getWidth(), c.y);
 				brm.lineTo(mouse.x, mouse.y);
 				brm.closePath();
 				g2d.draw(brm);
+
+
+				Coords relative = new Coords(mouse.x - c.x, mouse.y - c.y);
+				g2d.setColor(Color.white);
+				for (int i = 1; i < 20; i++) {
+					Path2D q1 = new Path2D.Double();
+					q1.moveTo(c.x + (i * mouse.z * (relative.x / 20)), 0 + (i * mouse.z * ((c.y + relative.y) / 20)));
+					q1.lineTo(mouse.x + (i * mouse.z * ((c.x - relative.x) / 20)), mouse.y - (i * mouse.z * (relative.y / 20)));
+					q1.closePath();
+					g2d.draw(q1);
+
+					Path2D q2 = new Path2D.Double();
+					q2.moveTo(c.x + (i * mouse.z * (relative.x / 20)), 0 + (i * mouse.z * ((c.y + relative.y) / 20)));
+					q2.lineTo(mouse.x - (i * mouse.z * ((c.x + relative.x) / 20)), mouse.y - (i * mouse.z * (relative.y / 20)));
+					q2.closePath();
+					g2d.draw(q2);
+
+					Path2D q3 = new Path2D.Double();
+					q3.moveTo(c.x + (i * mouse.z * (relative.x / 20)), getHeight() - (i * mouse.z * ((c.y - relative.y) / 20)));
+					q3.lineTo(mouse.x - (i * mouse.z * ((c.x + relative.x) / 20)), mouse.y - (i * mouse.z * (relative.y / 20)));
+					q3.closePath();
+					g2d.draw(q3);
+					
+					Path2D q4 = new Path2D.Double();
+					q4.moveTo(c.x + (i * mouse.z * (relative.x / 20)), getHeight() - (i * mouse.z * ((c.y - relative.y) / 20)));
+					q4.lineTo(mouse.x + (i * mouse.z * ((c.x - relative.x) / 20)), mouse.y - (i * mouse.z * (relative.y / 20)));
+					q4.closePath();
+					g2d.draw(q4);
+				}
 			}
 		};
-		renderPanel.addMouseMotionListener(new MouseMotionListener() {
-			@Override
-			public void mouseDragged(MouseEvent e) {}
+		renderPanel.addMouseListener(new MouseInputListener() {
+			@Override public void mouseDragged(MouseEvent e) {}
 
-			@Override
-			public void mouseMoved(MouseEvent e) {
+			@Override public void mouseMoved(MouseEvent e) {
 				mouse.x = MouseInfo.getPointerInfo().getLocation().getX();
 				mouse.y = MouseInfo.getPointerInfo().getLocation().getY();
 				renderPanel.repaint();
 			}
 
+			@Override public void mouseClicked(MouseEvent e) {
+				mouse.z = -mouse.z;
+			}
+
+			@Override public void mouseEntered(MouseEvent e) {}
+
+			@Override public void mouseExited(MouseEvent e) {}
+
+			@Override public void mousePressed(MouseEvent e) {}
+
+			@Override public void mouseReleased(MouseEvent e) {}
 		});
 		pane.add(renderPanel, BorderLayout.CENTER);
 
